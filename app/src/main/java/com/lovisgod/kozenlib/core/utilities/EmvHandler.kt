@@ -43,6 +43,7 @@ class EmvHandler {
     var pinKey: Int? = KeysUtils.DUKPTKEY_INDEX
     var emvCardType = EmvCardType.DEFAULT
     var transAmount : String? = ""
+//    var transAmountLong : Long = 0
 
 
     fun setEmvContext(context: Context) {
@@ -77,7 +78,9 @@ class EmvHandler {
             this.emvEvents!!.onInsertCard()
             this.transAmount = DisplayUtilsKozen.getAmountString(amount.toInt() / 100.0)
 
+
             emvCoreManager = POIEmvCoreManager.getDefault()
+
             emvCoreListener = POIEmvCoreListener()
 
             val bundle = Bundle()
@@ -130,12 +133,12 @@ class EmvHandler {
                 cardType = type
                 when (type) {
                     POIEmvCoreManager.DEVICE_CONTACT -> {
-                        console.log("card transaction type","Contact Card Trans")
+                        console.log("card transaction type start trans","Contact Card Trans")
                         this@EmvHandler.emvEvents?.onEmvProcessing(message = "Contact Card Trans")
                         this@EmvHandler.emvEvents?.onCardDetected(true)
                     }
                     POIEmvCoreManager.DEVICE_CONTACTLESS -> {
-                        console.log("card transaction type", "Contactless Card Trans")
+                        console.log("card transaction type start trans", "Contactless Card Trans")
                         this@EmvHandler.emvEvents?.onEmvProcessing(message = "Contactless Card Trans")
                         this@EmvHandler.emvEvents?.onCardDetected(false)
                     }
@@ -308,14 +311,15 @@ class EmvHandler {
                 PosEmvErrorCode.EMV_CANCEL, PosEmvErrorCode.EMV_TIMEOUT -> {
 //                    onTransEnd()
                     println("transaction timed out")
+//                    emvCoreManager?.stopTransaction()
                     this@EmvHandler.emvEvents?.onRemoveCard()
                     return
                 }
 
                 PosEmvErrorCode.EMV_TERMINATED, PosEmvErrorCode.EMV_COMMAND_FAIL -> {
                     println("An emv error just occurred")
+//                    emvCoreManager?.stopTransaction()
                     this@EmvHandler.emvEvents?.onRemoveCard()
-
                     return
                 }
                 else -> {
@@ -443,6 +447,15 @@ class EmvHandler {
 
                         console.log("result", "Please Magnetic Stripe")
                         console.log("result", "FallBack")
+
+//                       startTransaction(
+//                           true,
+//                           true,
+//                           this@EmvHandler.transData?.getTransAmount()?.toLong()!!,
+//                           this@EmvHandler.transData?.getTransAmountOther()?.toLong()!!,
+//                           this@EmvHandler.transData?.getTransType()!!,
+//                           this@EmvHandler.emvEvents!!
+//                       )
                     }
                     PosEmvErrorCode.EMV_OTHER_ICC_INTERFACE -> {
                         console.log("result", "Please Insert Card")

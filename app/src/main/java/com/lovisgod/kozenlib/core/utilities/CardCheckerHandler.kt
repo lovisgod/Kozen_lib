@@ -144,6 +144,8 @@ class CardCheckerHandler {
         }
 
         override fun onKernelType(type: Int) {
+            println("this is kernel type")
+//            transData?.setCardType(type)
             emvCardType = EmvCardType.getCardTypeX(type)
 //            this@CardCheckerHandler.emvEvents?.onCardRead("", emvCardType)
         }
@@ -159,10 +161,18 @@ class CardCheckerHandler {
         }
 
         override fun onRequestOnlineProcess(bundle: Bundle) {
-
+          println("got here for request online")
+            val outBundle = Bundle()
+            outBundle.putInt(
+                POIEmvCoreManager.EmvOnlineConstraints.OUT_AUTH_RESP_CODE,
+                0
+            )
+            emvCoreManager?.onSetOnlineResponse(outBundle)
         }
 
         override fun onTransactionResult(result: Int, bundle: Bundle) {
+
+            println("got here for result")
 
 
             when (result) {
