@@ -252,8 +252,8 @@ class IswDataConfig : IswConfigDataSource {
         aid.dDOL = PosUtils.hexStringToBytes("9F3704")
         aid.tDOL = PosUtils.hexStringToBytes("9F3704")
         aid.TACDenial = PosUtils.hexStringToBytes("0400000000")
-        aid.TACOnline = PosUtils.hexStringToBytes("f850acf800")
-        aid.TACDefault = PosUtils.hexStringToBytes("fc50aca000")
+        aid.TACOnline = PosUtils.hexStringToBytes("BCF8049800")
+        aid.TACDefault = PosUtils.hexStringToBytes("BCF8049800")
         aid.ContactlessCVMLimit = 50000
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("4C00800000000000")
         emvCoreManager.EmvSetAid(aid)
