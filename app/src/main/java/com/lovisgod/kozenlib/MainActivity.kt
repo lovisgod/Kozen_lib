@@ -32,8 +32,8 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
 
                 delay(2000)
 
-                applicationHandler.startTransaction(
-                    true, true, 100L, 0L, 0, 0, this@MainActivity, this@MainActivity
+                applicationHandler.checkCard(
+                    true, true, 400000L, 0L, 0,  this@MainActivity
                 )
 
             }
@@ -44,8 +44,9 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
         println("insert card called")
     }
 
-    override fun onRemoveCard() {
-        println("remove card called")
+    override fun onRemoveCard(isContactlessTransLimit: Boolean, message: String) {
+        println("remove card")
+        println(message)
     }
 
     override fun onPinInput() {
@@ -66,6 +67,14 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
 
     override fun onEmvProcessed(data: Any) {
         println("emv processed is called")
+    }
+
+    override fun onUserCanceled(message: String) {
+        println(message)
+    }
+
+    override fun onTransactionCancelled(message: String) {
+        println(message)
     }
 
     override fun onPrintSuccess(code: Int) {

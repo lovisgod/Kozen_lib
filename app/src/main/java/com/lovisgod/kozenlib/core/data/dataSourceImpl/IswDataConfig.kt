@@ -1,5 +1,6 @@
 package com.lovisgod.kozenlib.core.data.dataSourceImpl
 
+import android.content.Context
 import android.os.Bundle
 import com.interswitchng.smartpos.shared.utilities.console
 import com.lovisgod.kozenlib.core.data.datasource.IswConfigDataSource
@@ -8,13 +9,14 @@ import com.lovisgod.kozenlib.core.utilities.BerTag
 import com.lovisgod.kozenlib.core.utilities.BerTlv
 import com.lovisgod.kozenlib.core.utilities.BerTlvBuilder
 import com.lovisgod.kozenlib.core.utilities.HexUtil
+import com.lovisgod.kozenlib.core.utilities.PrefUtils
 import com.pos.sdk.emvcore.*
 import com.pos.sdk.emvcore.POIEmvCoreManager.*
 import com.pos.sdk.utils.PosUtils
 import java.util.ArrayList
 import kotlin.experimental.or
 
-class IswDataConfig : IswConfigDataSource {
+class IswDataConfig(private val context: Context) : IswConfigDataSource {
 
     override suspend fun loadTerminal(terminalData: TerminalInfo) {
         console.log("load terminal info", "load terminal info")
@@ -96,16 +98,19 @@ class IswDataConfig : IswConfigDataSource {
 
         // VISA
         aid = addAid("A0000000031010", "008C")
-        aid.ContactlessTransLimit = 200001
-        aid.ContactlessCVMLimit = 200001
+        aid.ContactlessTransLimit = PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         emvCoreManager.EmvSetAid(aid)
         aid = addAid("A0000000032010", "008C")
-        aid.ContactlessTransLimit = 200001
-        aid.ContactlessCVMLimit = 200001
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         emvCoreManager.EmvSetAid(aid)
         aid = addAid("A0000000033010", "008C")
-        aid.ContactlessTransLimit = 200001
-        aid.ContactlessCVMLimit = 200001
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         emvCoreManager.EmvSetAid(aid)
 
         // Unionpay
@@ -146,14 +151,21 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACOnline = PosUtils.hexStringToBytes("f850acf800")
         aid.TACDefault = PosUtils.hexStringToBytes("fc50aca000")
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("6C00000000000000")
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
+        aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("4C00800000000000")
         emvCoreManager.EmvSetAid(aid)
+
         aid = addAid("A00000000430", "0002")
         aid.dDOL = PosUtils.hexStringToBytes("9F3704")
         aid.tDOL = PosUtils.hexStringToBytes("9F3704")
         aid.TACDenial = PosUtils.hexStringToBytes("0400000000")
         aid.TACOnline = PosUtils.hexStringToBytes("f850acf800")
         aid.TACDefault = PosUtils.hexStringToBytes("fc50aca000")
-        aid.ContactlessCVMLimit = 50000
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("4C00800000000000")
         emvCoreManager.EmvSetAid(aid)
 
@@ -163,9 +175,12 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACDenial = PosUtils.hexStringToBytes("0000800000")
         aid.TACOnline = PosUtils.hexStringToBytes("fc50bcf800")
         aid.TACDefault = PosUtils.hexStringToBytes("fc50bca000")
-        aid.ContactlessCVMLimit = 50000
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("4C00800000000000")
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         emvCoreManager.EmvSetAid(aid)
+
         aid = addAid("A0000000041010", "0002")
         aid.dDOL = PosUtils.hexStringToBytes("9F3704")
         aid.tDOL = PosUtils.hexStringToBytes("9F3704")
@@ -173,6 +188,9 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACOnline = PosUtils.hexStringToBytes("fc50808800")
         aid.TACDefault = PosUtils.hexStringToBytes("fc50b8a000")
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("6C00000000000000")
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         emvCoreManager.EmvSetAid(aid)
 
         // Discover
@@ -198,6 +216,9 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACDenial = PosUtils.hexStringToBytes("0000000000")
         aid.TACOnline = PosUtils.hexStringToBytes("c800000000")
         aid.TACDefault = PosUtils.hexStringToBytes("c800000000")
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         emvCoreManager.EmvSetAid(aid)
 
         // RuPay
@@ -244,7 +265,9 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACDenial = PosUtils.hexStringToBytes("0000008000")
         aid.TACOnline = PosUtils.hexStringToBytes("BCF8049800")
         aid.TACDefault = PosUtils.hexStringToBytes("BCF8049800")
-        aid.ContactlessCVMLimit = 50000
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("6C00800000000000")
         emvCoreManager.EmvSetAid(aid)
 
@@ -254,7 +277,9 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACDenial = PosUtils.hexStringToBytes("0400000000")
         aid.TACOnline = PosUtils.hexStringToBytes("f850acf800")
         aid.TACDefault = PosUtils.hexStringToBytes("fc50aca000")
-        aid.ContactlessCVMLimit = 50000
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("4C00800000000000")
         emvCoreManager.EmvSetAid(aid)
 
@@ -265,7 +290,9 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACDenial = PosUtils.hexStringToBytes("0000008000")
         aid.TACOnline = PosUtils.hexStringToBytes("BCF8049800")
         aid.TACDefault = PosUtils.hexStringToBytes("BCF8049800")
-        aid.ContactlessCVMLimit = 50000
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("6C00800000000000")
         emvCoreManager.EmvSetAid(aid)
 
@@ -275,7 +302,9 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACDenial = PosUtils.hexStringToBytes("0400000000")
         aid.TACOnline = PosUtils.hexStringToBytes("f850acf800")
         aid.TACDefault = PosUtils.hexStringToBytes("fc50aca000")
-        aid.ContactlessCVMLimit = 50000
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("4C00800000000000")
         emvCoreManager.EmvSetAid(aid)
 
@@ -285,7 +314,9 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACDenial = PosUtils.hexStringToBytes("0000008000")
         aid.TACOnline = PosUtils.hexStringToBytes("BCF8049800")
         aid.TACDefault = PosUtils.hexStringToBytes("BCF8049800")
-        aid.ContactlessCVMLimit = 50000
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("6C00800000000000")
         emvCoreManager.EmvSetAid(aid)
 
@@ -295,7 +326,9 @@ class IswDataConfig : IswConfigDataSource {
         aid.TACDenial = PosUtils.hexStringToBytes("0400000000")
         aid.TACOnline = PosUtils.hexStringToBytes("f850acf800")
         aid.TACDefault = PosUtils.hexStringToBytes("fc50aca000")
-        aid.ContactlessCVMLimit = 50000
+        aid.ContactlessTransLimit =  PrefUtils.getContactlessTransLimit(context).toInt()
+        aid.ContactlessCVMLimit =  PrefUtils.getContactlessCvmLimit(context).toInt()
+        aid.ContactlessFloorLimit =  PrefUtils.getContactlessFloorLimit(context).toInt()
         aid.TerminalRiskManagementData = PosUtils.hexStringToBytes("4C00800000000000")
         emvCoreManager.EmvSetAid(aid)
     }

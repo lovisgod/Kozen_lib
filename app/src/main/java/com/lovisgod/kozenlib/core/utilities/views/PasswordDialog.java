@@ -65,7 +65,7 @@ public class PasswordDialog {
     private int keyMode = POIHsmManage.PED_PINBLOCK_FETCH_MODE_TPK;
     private int icSlot;
 
-    private boolean isKeyboardFix = true;
+    private boolean isKeyboardFix = false;
     private boolean isEncrypt;
     private String  pinCard;
     private int     pinType;
@@ -413,7 +413,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                dialog.dismiss();
+                closeDialogCancelTransaction();
             }
         });
 
@@ -466,8 +466,14 @@ public class PasswordDialog {
         return result;
     }
 
-    public void closeDialog() {
-        console.Companion.log("close pin dialog", "Dialog is closed");
+    public void closeDialog(String functionName) {
+        console.Companion.log("close pin dialog - " + functionName, "Dialog is closed");
+        dialog.dismiss();
+        hsmManage.unregisterListener(pinEventListener);
+    }
+
+    public void closeDialogCancelTransaction() {
+        console.Companion.log("close pin dialog - " + "closeDialogCancelTransaction", "Dialog is closed");
         dialog.dismiss();
         hsmManage.unregisterListener(pinEventListener);
     }
@@ -561,7 +567,7 @@ public class PasswordDialog {
             } else {
                 onPinError(EmvPinConstraints.VERIFY_NO_PASSWORD, 0);
             }
-            closeDialog();
+            closeDialog("onPedVerifyPin");
         }
 
         @Override
@@ -582,7 +588,7 @@ public class PasswordDialog {
                     onPinSuccess(pinBlock, null);
                 }
             }
-            closeDialog();
+            closeDialog("onPedPinBlockRet");
         }
 
         @Override
@@ -641,17 +647,17 @@ public class PasswordDialog {
                 case 0xFFFD:
                     System.out.println("VERIFY CANCELED");
                     onPinError(EmvPinConstraints.VERIFY_CANCELED, 0);
-                    closeDialog();
+                    closeDialog("onError - VERIFY CANCELED");
                     return;
                 case 0xFFFC:
-                    System.out.println("The terminal triggers a security check.");
+                    System.out.println("Security trigger - The card has been removed");
                     tvError.setVisibility(View.VISIBLE);
-                    tvError.setText("The terminal triggers a security check.");
+                    tvError.setText("Security trigger - The card has been removed");
                     break;
                 case 0xFED3:
-                    System.out.println("TThe terminal did not write the PIN key. Please check.");
+                    System.out.println("Security trigger - The terminal did not write the PIN key");
                     tvError.setVisibility(View.VISIBLE);
-                    tvError.setText("The terminal did not write the PIN key. Please check.");
+                    tvError.setText("Security trigger - The terminal did not write the PIN key");
                     break;
                 case 0XFECF:
                     if (pinBypass) {
@@ -661,7 +667,7 @@ public class PasswordDialog {
                         System.out.println("ERROR NOT PIN BYPASS.");
                         onPinError(EmvPinConstraints.VERIFY_ERROR, 0);
                     }
-                    closeDialog();
+                    closeDialog("onError - ERROR NOT PIN BYPASS.");
                     return;
                 default:
                     System.out.println("DEFAULT ERROR NO PASSWORD.");
@@ -677,7 +683,7 @@ public class PasswordDialog {
                 public void run() {
                     console.Companion.log("pin cancel is called", "pin canceled called here");
                     onPinError(EmvPinConstraints.VERIFY_CANCELED, 0);
-                    closeDialog();
+                    closeDialog("Handler run - PIN CANCELed");
                 }
             }, 2000);
         }
@@ -866,7 +872,6 @@ public class PasswordDialog {
                 if (value.equals(esc)) {
                     tv = btnEsc;
                 } else {
-                    // COME BACK HERE OOOO JUDAH
                     keyView[viewIndex].setText(value);
                     tv = keyViewCard[viewIndex++];
                 }

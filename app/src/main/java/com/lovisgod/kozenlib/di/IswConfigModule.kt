@@ -12,9 +12,9 @@ import com.lovisgod.kozenlib.core.data.datasource.IswPrinterDataSource
 import org.koin.dsl.module.module
 
 val configModule = module {
-    single { IswDataConfig() }
+    single { IswDataConfig(get()) }
     single { IswDetailsAndKeysImpl( get(), get() ) }
-    factory<IswConfigDataSource> { return@factory IswDataConfig() }
+    factory<IswConfigDataSource> { return@factory IswDataConfig(get()) }
     factory<IswDetailsAndKeyDataSource> {
         return@factory IswDetailsAndKeysImpl(
             get(),

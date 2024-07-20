@@ -11,6 +11,18 @@ object Constants {
     var isHardWareKeyBoard = true
     var memoryPinData = MemoryPinData()
 
+    // Amount Limits For Contactless Payments
+    const val CONTACTLESS_CVM_LIMIT: Int = 500000
+    const val CONTACTLESS_FLOOR_LIMIT: Int = 0
+    const val CONTACTLESS_TRANS_LIMIT: Int = 2000000
+    const val CONTACTLESS_TRANS_NO_DEVICE_LIMIT: Int = 2000000
+
+    // Pref Keys For Contactless Payments
+    const val KEY_CONTACTLESS_CVM_LIMIT = "contactless_cvm_limit"
+    const val KEY_CONTACTLESS_FLOOR_LIMIT = "contactless_floor_limit"
+    const val KEY_CONTACTLESS_TRANS_LIMIT = "contactless_trans_limit"
+    const val KEY_CONTACTLESS_TRANS_NO_DEVICE_LIMIT = "contactless_trans_no_device_limit"
+
 
     val TOKEN: String = "TOKEN"
     internal const val EXCEPTION_CODE = 9000
