@@ -43,7 +43,6 @@ class EmvHandler {
     var pinKey: Int? = KeysUtils.DUKPTKEY_INDEX
     var emvCardType = EmvCardType.DEFAULT
     var transAmount : String? = ""
-//    var transAmountLong : Long = 0
 
 
     fun setEmvContext(context: Context) {
@@ -78,9 +77,7 @@ class EmvHandler {
             this.emvEvents!!.onInsertCard()
             this.transAmount = DisplayUtilsKozen.getAmountString(amount.toInt() / 100.0)
 
-
             emvCoreManager = POIEmvCoreManager.getDefault()
-
             emvCoreListener = POIEmvCoreListener()
 
             val bundle = Bundle()
@@ -104,6 +101,15 @@ class EmvHandler {
             bundle.putInt(POIEmvCoreManager.EmvTransDataConstraints.TRANS_TIMEOUT, 60)
             bundle.putBoolean(POIEmvCoreManager.EmvTransDataConstraints.SPECIAL_CONTACT, false)
             bundle.putBoolean(POIEmvCoreManager.EmvTransDataConstraints.SPECIAL_MAGSTRIPE, false)
+            bundle.putBoolean(POIEmvCoreManager.EmvTransDataConstraints.USE_SELECT_KERNEL, true)
+
+            // Adds a delay after the card is detected before command interchange between the card and terminal begins
+            // Serves to fix a bug where the card chip sometimes does not have sufficient time to power up before the Terminal starts to send commands
+            bundle.putBoolean(POIEmvCoreManager.EmvTransDataConstraints.SPECIAL_CONTACT, true)
+            bundle.putBoolean(POIEmvCoreManager.EmvTransDataConstraints.SPECIAL_MAGSTRIPE, true)
+            bundle.putInt(POIEmvCoreManager.EmvTransDataConstraints.SPECIAL_CONTACT_TIME, 1000)
+            bundle.putInt(POIEmvCoreManager.EmvTransDataConstraints.SPECIAL_MAGSTRIPE_TIME, 1000)
+
             transData?.setTransType(transType)
             transData?.setTransAmount(amount.toDouble())
             transData?.setTransAmountOther(amountOther.toDouble())
@@ -133,12 +139,12 @@ class EmvHandler {
                 cardType = type
                 when (type) {
                     POIEmvCoreManager.DEVICE_CONTACT -> {
-                        console.log("card transaction type start trans","Contact Card Trans")
+                        console.log("card transaction type","Contact Card Trans")
                         this@EmvHandler.emvEvents?.onEmvProcessing(message = "Contact Card Trans")
                         this@EmvHandler.emvEvents?.onCardDetected(true)
                     }
                     POIEmvCoreManager.DEVICE_CONTACTLESS -> {
-                        console.log("card transaction type start trans", "Contactless Card Trans")
+                        console.log("card transaction type", "Contactless Card Trans")
                         this@EmvHandler.emvEvents?.onEmvProcessing(message = "Contactless Card Trans")
                         this@EmvHandler.emvEvents?.onCardDetected(false)
                     }
@@ -172,6 +178,9 @@ class EmvHandler {
                 outBundle.putBoolean(POIEmvCoreManager.EmvCardInfoConstraints.OUT_CONFIRM, true)
             } else if (mode == POIEmvCoreManager.CMD_ISSUER_REFERRAL) {
                 outBundle.putBoolean(POIEmvCoreManager.EmvCardInfoConstraints.OUT_CONFIRM, true)
+            } else if (mode == POIEmvCoreManager.CMD_SELECT_KERNEL) {
+                val data = bundle!!.getByteArray(POIEmvCoreManager.EmvCardInfoConstraints.DATA)
+                SelectKernelUtils.doSelectKernel(data)
             }
             emvCoreManager?.onSetCardInfoResponse(outBundle)
         }
@@ -193,7 +202,7 @@ class EmvHandler {
                 val isIcSlot = cardType == POIEmvCoreManager.DEVICE_CONTACT
                 val dialog =
                     PasswordDialog( this@EmvHandler.context, isIcSlot,
-                        bundle, pinKey!!, pinMode!!, transAmount)
+                        bundle, pinKey!!, pinMode!!, transAmount, emvCardType)
                 dialog.showDialog()
             }
 
@@ -308,20 +317,31 @@ class EmvHandler {
         override fun onTransactionResult(result: Int, bundle: Bundle) {
             Log.d(TAG, "onTransactionResult $result")
             when (result) {
-                PosEmvErrorCode.EMV_CANCEL, PosEmvErrorCode.EMV_TIMEOUT -> {
-//                    onTransEnd()
-                    println("transaction timed out")
-//                    emvCoreManager?.stopTransaction()
-                    this@EmvHandler.emvEvents?.onRemoveCard()
+                PosEmvErrorCode.EMV_CANCEL -> {
+                    println("Transaction Cancelled")
+                    this@EmvHandler.emvEvents?.onUserCanceled()
                     return
                 }
 
-                PosEmvErrorCode.EMV_TERMINATED, PosEmvErrorCode.EMV_COMMAND_FAIL -> {
-                    println("An emv error just occurred")
-//                    emvCoreManager?.stopTransaction()
-                    this@EmvHandler.emvEvents?.onRemoveCard()
+                PosEmvErrorCode.EMV_TIMEOUT -> {
+                    println("Transaction timed out")
+                    this@EmvHandler.emvEvents?.onTransactionCancelled()
                     return
                 }
+
+                PosEmvErrorCode.EMV_TERMINATED -> {
+                    println("An emv error just occurred")
+                    this@EmvHandler.emvEvents?.onTransactionCancelled("Transaction terminated")
+                    return
+                }
+
+                PosEmvErrorCode.EMV_COMMAND_FAIL -> {
+                    println("An emv error just occurred")
+                    this@EmvHandler.emvEvents?.onTransactionCancelled("EMV Error Occurred")
+                    return
+                }
+
+
                 else -> {
                 }
             }
@@ -441,29 +461,27 @@ class EmvHandler {
                 }
                 when (result) {
                     PosEmvErrorCode.EMV_MULTI_CONTACTLESS -> {
-                        console.log("result","multi contactless")
+                        console.log("result","Multiple Contactless Cards Detected")
+                        this@EmvHandler.emvEvents?.onTransactionCancelled("Multiple Contactless Cards Detected")
                     }
-                    PosEmvErrorCode.EMV_FALLBACK -> {
 
+                    PosEmvErrorCode.EMV_FALLBACK -> {
                         console.log("result", "Please Magnetic Stripe")
                         console.log("result", "FallBack")
-
-//                       startTransaction(
-//                           true,
-//                           true,
-//                           this@EmvHandler.transData?.getTransAmount()?.toLong()!!,
-//                           this@EmvHandler.transData?.getTransAmountOther()?.toLong()!!,
-//                           this@EmvHandler.transData?.getTransType()!!,
-//                           this@EmvHandler.emvEvents!!
-//                       )
+                        this@EmvHandler.emvEvents?.onTransactionCancelled("Transaction cancelled. Insert Card")
                     }
+
                     PosEmvErrorCode.EMV_OTHER_ICC_INTERFACE -> {
                         console.log("result", "Please Insert Card")
+//                        this@EmvHandler.emvEvents?.onRemoveCard(true, "Contactless Transaction Limit Exceeded")
+                        this@EmvHandler.emvEvents?.onTransactionCancelled("Use Other ICC Interface - test")
                     }
+
                     PosEmvErrorCode.EMV_APP_EMPTY -> {
                         console.log("result","Please Magnetic Stripe")
                         console.log("result","AID Empty")
                     }
+
                     PosEmvErrorCode.EMV_SEE_PHONE, PosEmvErrorCode.APPLE_VAS_WAITING_INTERVENTION, PosEmvErrorCode.APPLE_VAS_WAITING_ACTIVATION -> {
                         console.log("result","Please See Phone")
                     }

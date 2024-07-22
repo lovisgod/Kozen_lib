@@ -93,7 +93,7 @@ public class GenerateBitmap {
                 break;
         }
 
-        StaticLayout myStaticLayout = new StaticLayout(content, paint, PAPER_WIDTH, alignment, 1.0f, 0.0f, false);
+        StaticLayout myStaticLayout = new StaticLayout(content, paint, PAPER_WIDTH, alignment, 0.7f, 0.0f, false);
 
         int height = myStaticLayout.getHeight();
         if (height <= 0) {
@@ -128,9 +128,9 @@ public class GenerateBitmap {
         paint.setFakeBoldText(bold);
         paint.setTextSize(textSize);
         paint.setStrokeWidth(1);
-        paint.setAntiAlias(true);
+        paint.setAntiAlias(false);
 
-        Rect textBounds = new Rect(0, 0, 0, 30);    // measure content size
+        Rect textBounds = new Rect(0, 0, 0, 15);    // measure content size
         if (!TextUtils.isEmpty(content)) {
             paint.getTextBounds(content, 0, content.length(), textBounds);
         }
@@ -465,6 +465,25 @@ public class GenerateBitmap {
         canvas.restore();
         return bitmap;
     }
+
+    public static Bitmap generateLineNew(int height) {
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE); // Set text color
+        paint.setTextSize(30); // Set text size
+
+        int textWidth = (int) paint.measureText("---");
+        int textHeight = (int) (paint.descent() - paint.ascent());
+
+        Bitmap bitmap = Bitmap.createBitmap(textWidth, textHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawRGB(0, 0, 0);
+
+        int yPos = (int) ((textHeight) - ((paint.descent() + paint.ascent()) / 2));
+        canvas.drawText("---", 0, yPos, paint);
+
+        return bitmap;
+    }
+
 
     /**
      * @param height

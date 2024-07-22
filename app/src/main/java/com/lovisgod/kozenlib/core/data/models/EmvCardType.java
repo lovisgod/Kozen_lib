@@ -6,6 +6,7 @@ public enum EmvCardType {
 
     DEFAULT(POIEmvCoreManager.EMV_CARD_NOT, ""),
     VERVE(POIEmvCoreManager.EMV_CARD_NOT, "VERVE"),
+    AFRIGO(POIEmvCoreManager.EMV_CARD_NOT, "AFRIGO"),
     VISA(POIEmvCoreManager.EMV_CARD_VISA, "VISA"),
     UNIONPAY(POIEmvCoreManager.EMV_CARD_UNIONPAY, "UnionPay"),
     MASTERCARD(POIEmvCoreManager.EMV_CARD_MASTERCARD, "MasterCard"),

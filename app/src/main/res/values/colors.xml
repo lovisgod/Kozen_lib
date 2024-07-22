@@ -41,4 +41,10 @@
     <color name="iswHintTextColor">#4D181B24</color>
     <color name="iswUssdBackground">#F0F7FF</color>
     <color name="iswPaymentOptionBg">#FFF</color>
+    <color name="iswPinDialogBg">#F2F4F6</color>
+    <color name="iswPinDialogHintColor">#D3D3D3</color>
+    <color name="iswPinDialogCardBgColor">#FAFAFA</color>
+    <color name="iswPinDialogTextColor">#023B58</color>
+    <color name="iswPinButtonEnter">#25AE88</color>
+    <color name="iswPinButtonDelete">#F05050</color>
 </resources>

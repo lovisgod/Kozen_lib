@@ -3,9 +3,16 @@ package com.lovisgod.kozenlib.core.utilities.views;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,11 +25,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.Group;
 
+import com.google.android.material.textview.MaterialTextView;
 import com.interswitchng.smartpos.shared.utilities.console;
 import com.lovisgod.kozenlib.R;
+import com.lovisgod.kozenlib.core.data.models.CardType;
+import com.lovisgod.kozenlib.core.data.models.EmvCardType;
 import com.lovisgod.kozenlib.core.data.utilsData.Constants;
 import com.lovisgod.kozenlib.core.data.utilsData.KeysUtils;
 import com.lovisgod.kozenlib.core.network.models.MemoryPinData;
@@ -54,7 +65,7 @@ public class PasswordDialog {
     private int keyMode = POIHsmManage.PED_PINBLOCK_FETCH_MODE_TPK;
     private int icSlot;
 
-    private boolean isKeyboardFix = true;
+    private boolean isKeyboardFix = false;
     private boolean isEncrypt;
     private String  pinCard;
     private int     pinType;
@@ -68,22 +79,37 @@ public class PasswordDialog {
     private String title;
     private String message;
     private String amount;
+    private EmvCardType cardType;
 
     private POIHsmManage     hsmManage;
     private PinEventListener pinEventListener;
 
     private Dialog    dialog;
     private TextView  tvMessage;
-    private EditText  etPin;
-    private Button    btnConfirm;
-    private ImageView btnClear;
-    private TextView  btnEsc, btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9;
+    private TextView  tvError;
+    private TextView  tvTitle;
+    private TextView  tvPinLabelDesc;
+    private MaterialTextView tvPin;
+    private CardView btnConfirm;
+    private CardView btnClear;
+    private ImageView  btnEsc;
+    private ImageView  ivCardImage;
+    private ConstraintLayout  layoutKeypad;
+    private CardView btn0, btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9;
+    private TextView btn0Text, btn1Text, btn2Text, btn3Text, btn4Text, btn5Text, btn6Text, btn7Text, btn8Text, btn9Text;
 
-    public PasswordDialog(Context context, boolean isIcSlot, Bundle bundle, int keyIndex, int pinMode, String amount) {
+    public PasswordDialog(Context context, boolean isIcSlot, Bundle bundle, int keyIndex, int pinMode, String amount, EmvCardType cardType) {
+
         System.out.println("key index" + keyIndex);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        ConstraintLayout view = (ConstraintLayout) inflater.inflate(R.layout.layout_password_new, null);
+        instantiateViews(view);
+
         this.hsmManage = POIHsmManage.getDefault();
         this.pinEventListener = new PinEventListener();
         this.amount = amount;
+        this.cardType = cardType;
+
         if (isIcSlot) {
             this.icSlot = 0;
         } else {
@@ -129,47 +155,44 @@ public class PasswordDialog {
 
         switch (pinType) {
             case ONLINE_PIN:
-                title = "Online PIN - Amount N " + this.amount;
+                title = "Online";
                 break;
             case PLAIN_PIN:
             case ENCIPHER_PIN:
-                title = "Offline PIN - Amount N " + this.amount;
-                if (pinCounter > 1) {
-                    message = "PIN " + pinCounter + " ";
+                title = "Offline";
+                if (pinCounter > 3) {
+                    tvMessage.setVisibility(View.INVISIBLE);
+                } else if (pinCounter == 3) {
+                    message = "(3 trials left)";
+                    tvMessage.setText(message);
+                    tvMessage.setVisibility(View.VISIBLE);
+                } else if (pinCounter == 2) {
+                    message = "(2 trials left)";
+                    tvMessage.setText(message);
+                    tvMessage.setVisibility(View.VISIBLE);
                 } else if (pinCounter == 1) {
-                    message = "PIN Last Times";
+                    message = "(1 trial left)";
+                    tvMessage.setText(message);
+                    tvMessage.setVisibility(View.VISIBLE);
+                } else {
+                    message = "No trials left";
+                    tvMessage.setText(message);
+                    tvMessage.setVisibility(View.VISIBLE);
                 }
                 break;
             default:
                 break;
         }
 
-        LayoutInflater inflater = LayoutInflater.from(context);
-        ConstraintLayout view = (ConstraintLayout) inflater.inflate(R.layout.layout_password, null);
-        TextView tvTitle = view.findViewById(R.id.tvTitle);
-        tvMessage = view.findViewById(R.id.tvMessage);
-        etPin = view.findViewById(R.id.etPin);
-        btnConfirm = view.findViewById(R.id.btnConfirm);
-        btnClear = view.findViewById(R.id.btnClear);
-        btnEsc = view.findViewById(R.id.btnEsc);
-        btn0 = view.findViewById(R.id.btn0);
-        btn1 = view.findViewById(R.id.btn1);
-        btn2 = view.findViewById(R.id.btn2);
-        btn3 = view.findViewById(R.id.btn3);
-        btn4 = view.findViewById(R.id.btn4);
-        btn5 = view.findViewById(R.id.btn5);
-        btn6 = view.findViewById(R.id.btn6);
-        btn7 = view.findViewById(R.id.btn7);
-        btn8 = view.findViewById(R.id.btn8);
-        btn9 = view.findViewById(R.id.btn9);
-
         View groupKeyboard = view.findViewById(R.id.layoutKeyboard);
-//        if (DeviceConfig.isHardwareKeyboard) {
-//            groupKeyboard.setVisibility(View.GONE);
+//        if (Constants.INSTANCE.isHardWareKeyBoard()) {
+//            groupKeyboard.setVisibility(View.VISIBLE);
 //        }
 
         tvTitle.setText(title);
         tvMessage.setText(message);
+        setAmountSpannableString();
+        setCardTypeDrawable();
 
         if (DeviceUtilsKozen.INSTANCE.getDeviceModel()) { // i.e the device model is p13
             System.out.println("device is p13 hide pin");
@@ -183,9 +206,9 @@ public class PasswordDialog {
             btn7.setVisibility(View.GONE);
             btn8.setVisibility(View.GONE);
             btn9.setVisibility(View.GONE);
-            btnEsc.setVisibility(View.GONE);
             btnClear.setVisibility(View.GONE);
             btnConfirm.setVisibility(View.GONE);
+            layoutKeypad.setVisibility(View.GONE);
         }
 
         dialog = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar);
@@ -203,6 +226,87 @@ public class PasswordDialog {
 
     }
 
+    public void instantiateViews(ConstraintLayout view) {
+        layoutKeypad = view.findViewById(R.id.layout_keypad);
+        ivCardImage = view.findViewById(R.id.ivCardImage);
+        tvTitle = view.findViewById(R.id.tvTitle);
+        tvMessage = view.findViewById(R.id.tvMessage);
+        tvError = view.findViewById(R.id.tvError);
+        tvPinLabelDesc = view.findViewById(R.id.tvPinLabelDesc);
+        tvPin = view.findViewById(R.id.tvPin);
+        btnConfirm = view.findViewById(R.id.btnConfirm);
+        btnClear = view.findViewById(R.id.btnClear);
+        btnEsc = view.findViewById(R.id.btnEsc);
+
+        // CardViews of Buttons
+        btn0 = view.findViewById(R.id.btn0);
+        btn1 = view.findViewById(R.id.btn1);
+        btn2 = view.findViewById(R.id.btn2);
+        btn3 = view.findViewById(R.id.btn3);
+        btn4 = view.findViewById(R.id.btn4);
+        btn5 = view.findViewById(R.id.btn5);
+        btn6 = view.findViewById(R.id.btn6);
+        btn7 = view.findViewById(R.id.btn7);
+        btn8 = view.findViewById(R.id.btn8);
+        btn9 = view.findViewById(R.id.btn9);
+
+        // Textviews inside CardView of Buttons
+        btn0Text = view.findViewById(R.id.tvBtn0);
+        btn1Text = view.findViewById(R.id.tvBtn1);
+        btn2Text = view.findViewById(R.id.tvBtn2);
+        btn3Text = view.findViewById(R.id.tvBtn3);
+        btn4Text = view.findViewById(R.id.tvBtn4);
+        btn5Text = view.findViewById(R.id.tvBtn5);
+        btn6Text = view.findViewById(R.id.tvBtn6);
+        btn7Text = view.findViewById(R.id.tvBtn7);
+        btn8Text = view.findViewById(R.id.tvBtn8);
+        btn9Text = view.findViewById(R.id.tvBtn9);
+    }
+
+    public void setAmountSpannableString() {
+        String amountString = "Please enter your Card PIN to authorise and complete your payment of ";
+        SpannableStringBuilder spannableString = new SpannableStringBuilder(amountString);
+
+        String amountWithCurrency = "₦ " + amount;
+        SpannableString amountSpan = new SpannableString(amountWithCurrency);
+        amountSpan.setSpan(new StyleSpan(Typeface.BOLD), 0, amountSpan.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        amountSpan.setSpan(new ForegroundColorSpan(Color.rgb(0, 159, 228)), 0, amountSpan.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        spannableString.append(amountSpan);
+
+        tvPinLabelDesc.setText(spannableString);
+    }
+
+    public void setCardTypeDrawable() {
+        switch (cardType) {
+            case VERVE:
+                ivCardImage.setImageResource(R.drawable.isw_card_verve);
+                break;
+            case VISA:
+                ivCardImage.setImageResource(R.drawable.isw_card_visa);
+                break;
+            case MASTERCARD:
+                ivCardImage.setImageResource(R.drawable.isw_card_mastercard);
+                break;
+            case INTERAC:
+                ivCardImage.setImageResource(R.drawable.isw_card_interac);
+                break;
+            case AFRIGO:
+                ivCardImage.setImageResource(R.drawable.isw_card_afrigo);
+                break;
+            case AMERICAN_EXPRESS:
+                ivCardImage.setImageResource(R.drawable.isw_card_amex);
+                break;
+            case UNIONPAY:
+                ivCardImage.setImageResource(R.drawable.isw_card_unionpay);
+                break;
+            case DEFAULT:
+                ivCardImage.setImageResource(R.drawable.isw_ic_card);
+                break;
+        }
+
+    }
+
     public void checkPinInput(){
         StringBuilder info = new StringBuilder();
         int xxxx  = pinX.length();
@@ -210,7 +314,7 @@ public class PasswordDialog {
             info.append("*");
         }
         if (info.length() <= 12) {
-            etPin.setText(info.toString());
+            tvPin.setText(info.toString());
         }
     }
 
@@ -219,7 +323,8 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+
+                pinX += btn0Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -228,7 +333,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+                pinX += btn1Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -237,7 +342,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+                pinX += btn2Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -246,7 +351,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+                pinX += btn3Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -255,7 +360,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+                pinX += btn4Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -263,7 +368,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+                pinX += btn5Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -272,7 +377,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+                pinX += btn6Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -281,7 +386,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+                pinX += btn7Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -290,7 +395,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+                pinX += btn8Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -299,7 +404,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                pinX += ((TextView) view).getText().toString();
+                pinX += btn9Text.getText().toString();
                 checkPinInput();
             }
         });
@@ -308,7 +413,7 @@ public class PasswordDialog {
             @Override
             public void onClick(View view) {
                 System.out.println("keyclicked :" + ((TextView) view).getText().toString());
-                dialog.dismiss();
+                closeDialogCancelTransaction();
             }
         });
 
@@ -361,8 +466,14 @@ public class PasswordDialog {
         return result;
     }
 
-    public void closeDialog() {
-        console.Companion.log("close pin dialog", "Dialog is closed");
+    public void closeDialog(String functionName) {
+        console.Companion.log("close pin dialog - " + functionName, "Dialog is closed");
+        dialog.dismiss();
+        hsmManage.unregisterListener(pinEventListener);
+    }
+
+    public void closeDialogCancelTransaction() {
+        console.Companion.log("close pin dialog - " + "closeDialogCancelTransaction", "Dialog is closed");
         dialog.dismiss();
         hsmManage.unregisterListener(pinEventListener);
     }
@@ -456,7 +567,7 @@ public class PasswordDialog {
             } else {
                 onPinError(EmvPinConstraints.VERIFY_NO_PASSWORD, 0);
             }
-            closeDialog();
+            closeDialog("onPedVerifyPin");
         }
 
         @Override
@@ -477,7 +588,7 @@ public class PasswordDialog {
                     onPinSuccess(pinBlock, null);
                 }
             }
-            closeDialog();
+            closeDialog("onPedPinBlockRet");
         }
 
         @Override
@@ -516,7 +627,7 @@ public class PasswordDialog {
                 info.append("*");
             }
             if (info.length() <= 12) {
-                etPin.setText(info.toString());
+                tvPin.setText(info.toString());
             }
         }
 
@@ -536,15 +647,17 @@ public class PasswordDialog {
                 case 0xFFFD:
                     System.out.println("VERIFY CANCELED");
                     onPinError(EmvPinConstraints.VERIFY_CANCELED, 0);
-                    closeDialog();
+                    closeDialog("onError - VERIFY CANCELED");
                     return;
                 case 0xFFFC:
-                    System.out.println("The terminal triggers a security check.");
-                    tvMessage.setText("The terminal triggers a security check.");
+                    System.out.println("Security trigger - The card has been removed");
+                    tvError.setVisibility(View.VISIBLE);
+                    tvError.setText("Security trigger - The card has been removed");
                     break;
                 case 0xFED3:
-                    System.out.println("TThe terminal did not write the PIN key. Please check.");
-                    tvMessage.setText("The terminal did not write the PIN key. Please check.");
+                    System.out.println("Security trigger - The terminal did not write the PIN key");
+                    tvError.setVisibility(View.VISIBLE);
+                    tvError.setText("Security trigger - The terminal did not write the PIN key");
                     break;
                 case 0XFECF:
                     if (pinBypass) {
@@ -554,7 +667,7 @@ public class PasswordDialog {
                         System.out.println("ERROR NOT PIN BYPASS.");
                         onPinError(EmvPinConstraints.VERIFY_ERROR, 0);
                     }
-                    closeDialog();
+                    closeDialog("onError - ERROR NOT PIN BYPASS.");
                     return;
                 default:
                     System.out.println("DEFAULT ERROR NO PASSWORD.");
@@ -570,7 +683,7 @@ public class PasswordDialog {
                 public void run() {
                     console.Companion.log("pin cancel is called", "pin canceled called here");
                     onPinError(EmvPinConstraints.VERIFY_CANCELED, 0);
-                    closeDialog();
+                    closeDialog("Handler run - PIN CANCELed");
                 }
             }, 2000);
         }
@@ -675,34 +788,74 @@ public class PasswordDialog {
         map.put("-40", clear);
 
         TextView[] keyView = new TextView[11];
+        CardView[] keyViewCard = new CardView[11];
 
         if (isKeyboardFix) {
-            keyView[0] = btn1;
-            keyView[1] = btn2;
-            keyView[2] = btn3;
-            keyView[3] = btn4;
-            keyView[4] = btn5;
-            keyView[5] = btn6;
-            keyView[6] = btn7;
-            keyView[7] = btn8;
-            keyView[8] = btn9;
-            keyView[9] = btn0;
+            keyView[0] = btn1Text;
+            keyViewCard[0] = btn1;
+
+            keyView[1] = btn2Text;
+            keyViewCard[1] = btn2;
+
+            keyView[2] = btn3Text;
+            keyViewCard[2] = btn3;
+
+            keyView[3] = btn4Text;
+            keyViewCard[3] = btn4;
+
+            keyView[4] = btn5Text;
+            keyViewCard[4] = btn5;
+
+            keyView[5] = btn6Text;
+            keyViewCard[5] = btn6;
+
+            keyView[6] = btn7Text;
+            keyViewCard[6] = btn7;
+
+            keyView[7] = btn8Text;
+            keyViewCard[7] = btn8;
+
+            keyView[8] = btn9Text;
+            keyViewCard[8] = btn9;
+
+            keyView[9] = btn0Text;
+            keyViewCard[9] = btn0;
         } else {
-            keyView[0] = btn0;
-            keyView[1] = btn1;
-            keyView[2] = btn2;
-            keyView[3] = btn3;
-            keyView[4] = btn4;
-            keyView[5] = btn5;
-            keyView[6] = btn6;
-            keyView[7] = btn7;
-            keyView[8] = btn8;
-            keyView[9] = btn9;
-            keyView[10] = btnEsc;
+            keyView[0] = btn0Text;
+            keyViewCard[0] = btn0;
+
+            keyView[1] = btn1Text;
+            keyViewCard[1] = btn1;
+
+            keyView[2] = btn2Text;
+            keyViewCard[2] = btn2;
+
+            keyView[3] = btn3Text;
+            keyViewCard[3] = btn3;
+
+            keyView[4] = btn4Text;
+            keyViewCard[4] = btn4;
+
+            keyView[5] = btn5Text;
+            keyViewCard[5] = btn5;
+
+            keyView[6] = btn6Text;
+            keyViewCard[6] = btn6;
+
+            keyView[7] = btn7Text;
+            keyViewCard[7] = btn7;
+
+            keyView[8] = btn8Text;
+            keyViewCard[8] = btn8;
+
+            keyView[9] = btn9Text;
+            keyViewCard[9] = btn9;
         }
 
-        ImageView ivClear = btnClear;
-        Button btnConfirm = this.btnConfirm;
+        CardView ivClear = btnClear;
+        CardView btnConfirm = this.btnConfirm;
+        ImageView btnEsc = this.btnEsc;
+
         int viewIndex = 0;
 
         for (int i = 0; i <= 12; i++) {
@@ -720,7 +873,7 @@ public class PasswordDialog {
                     tv = btnEsc;
                 } else {
                     keyView[viewIndex].setText(value);
-                    tv = keyView[viewIndex++];
+                    tv = keyViewCard[viewIndex++];
                 }
             }
 

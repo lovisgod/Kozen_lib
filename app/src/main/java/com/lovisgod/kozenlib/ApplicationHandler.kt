@@ -6,6 +6,7 @@ import android.util.Log
 import com.lovisgod.kozenlib.core.data.dataInteractor.*
 import com.lovisgod.kozenlib.core.data.models.IswTerminalModel
 import com.lovisgod.kozenlib.core.data.models.TerminalInfo
+import com.lovisgod.kozenlib.core.data.models.printer.PrintObject
 import com.lovisgod.kozenlib.core.data.utilsData.RequestIccData
 import com.lovisgod.kozenlib.core.utilities.DeviceUtilsKozen
 import org.koin.standalone.KoinComponent
@@ -24,6 +25,10 @@ class ApplicationHandler: KoinComponent {
 
     suspend fun print(context: Context, printerEvent: PrinterEvent, bitmap: Bitmap) {
         iswPrinterInteractor.print(context, printerEvent, bitmap)
+    }
+
+    suspend fun printText(context: Context, printerEvent: PrinterEvent, slip: List<PrintObject>) {
+        iswPrinterInteractor.print(context, printerEvent, slip)
     }
 
 

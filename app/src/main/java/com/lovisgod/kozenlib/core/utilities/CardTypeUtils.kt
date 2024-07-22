@@ -13,7 +13,8 @@ object CardTypeUtils {
     private const val PATTERN_DINERS_CLUB = "^3(?:0[0-5]|[68][0-9])[0-9]{11}$"
     private const val PATTERN_DISCOVER = "^6(?:011|5[0-9]{2})[0-9]{12}$"
     private const val PATTERN_JCB = "^(?:2131|1800|35[0-9]{3})[0-9]{11}$"
-
+    private const val PATTERN_UNION_PAY = "^(62[0-9]{14,17})$"
+    private const val PATTERN_AFRIGO = "^5640\\d{10,15}$"
 
     fun getCardType(cardPan: String): EmvCardType{
         if(PATTERN_VISA.toRegex().matches(cardPan)) return EmvCardType.VISA
@@ -21,6 +22,8 @@ object CardTypeUtils {
         if(PATTERN_AMERICAN_EXPRESS.toRegex().matches(cardPan)) return EmvCardType.AMERICAN_EXPRESS
         if(PATTERN_VERVE.toRegex().matches(cardPan)) return EmvCardType.VERVE
         if(PATTERN_CUP.toRegex().matches(cardPan)) return EmvCardType.INTERAC
+        if(PATTERN_AFRIGO.toRegex().matches(cardPan)) return EmvCardType.AFRIGO
+        if(PATTERN_UNION_PAY.toRegex().matches(cardPan)) return EmvCardType.UNIONPAY
 
         return EmvCardType.DEFAULT
     }

@@ -30,29 +30,11 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
                 applicationHandler.loadTerminal(terminalInfo)
                 applicationHandler.loadAllConfig()
 
-                //sessionKey":"5D89FD58FB8CA89D8643EABAC41A67A2","masterKey":"C7B938A1B3C7FE7F7C2FE3FD6BC223BA","pinKey":"7B81AB996B0212192B8E44BDF80B90CA"
-
-               var rrr =  applicationHandler.loadMasterKey("C7B938A1B3C7FE7F7C2FE3FD6BC223BA")
-                println("master key ret:: $rrr")
-                var fff =applicationHandler.writePinKey(2, "7B81AB996B0212192B8E44BDF80B90CA")
-                println("pin key ret:: $fff")
-
                 delay(2000)
 
-//
-//                applicationHandler.checkCard(
-//                    true, true, 100L, 0L, 0, this@MainActivity
-//                )
-
                 applicationHandler.startTransaction(
-                    true, true, 100L, 0L, 0, 0, this@MainActivity, this@MainActivity
+                    true, true, 400000L, 0L, 0, 0,  this@MainActivity, this@MainActivity
                 )
-
-//                PrinterUtil().generateTestBitmap()?.let { it1 ->
-//                    applicationHandler.print(this@MainActivity, this@MainActivity,
-//                        it1
-//                    )
-//                }
 
             }
         }
@@ -62,8 +44,9 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
         println("insert card called")
     }
 
-    override fun onRemoveCard() {
-        println("remove card called")
+    override fun onRemoveCard(isContactlessTransLimit: Boolean, message: String) {
+        println("remove card")
+        println(message)
     }
 
     override fun onPinInput() {
@@ -84,6 +67,14 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
 
     override fun onEmvProcessed(data: Any) {
         println("emv processed is called")
+    }
+
+    override fun onUserCanceled(message: String) {
+        println(message)
+    }
+
+    override fun onTransactionCancelled(message: String) {
+        println(message)
     }
 
     override fun onPrintSuccess(code: Int) {
