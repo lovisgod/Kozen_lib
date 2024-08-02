@@ -52,14 +52,14 @@ public class SelectKernelUtils {
         Bundle bundle = new Bundle();
 
         if (kernel == 0) {
-            bundle.putByteArray(EmvCardInfoConstraints.OUT_TLV, new byte[0]);
+//            bundle.putByteArray(EmvCardInfoConstraints.OUT_TLV, new byte[0]);
             POIEmvCoreManager.getDefault().onSetCardInfoResponse(bundle);
             return;
         }
 
         BerTlvBuilder tlvBuilder = new BerTlvBuilder();
         tlvBuilder.addByte(new BerTag("DF10"), kernel);
-        bundle.putByteArray(EmvCardInfoConstraints.OUT_TLV, tlvBuilder.buildArray());
+//        bundle.putByteArray(EmvCardInfoConstraints.OUT_TLV, tlvBuilder.buildArray());
         POIEmvCoreManager.getDefault().onSetCardInfoResponse(bundle);
     }
 
