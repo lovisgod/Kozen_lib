@@ -116,6 +116,7 @@ public class PasswordDialog {
             this.icSlot = 10;
         }
         this.keyIndex = keyIndex;
+        this.keyMode = pinMode;
 
         switch (bundle.getInt(EmvPinConstraints.PIN_TYPE, -1)) {
             case POIEmvCoreManager.PIN_PLAIN_PIN:
