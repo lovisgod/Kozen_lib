@@ -9,8 +9,8 @@ import com.lovisgod.kozenlib.core.data.models.TerminalInfo
 import com.lovisgod.kozenlib.core.data.models.printer.PrintObject
 import com.lovisgod.kozenlib.core.data.utilsData.RequestIccData
 import com.lovisgod.kozenlib.core.utilities.DeviceUtilsKozen
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
 class ApplicationHandler: KoinComponent {
 

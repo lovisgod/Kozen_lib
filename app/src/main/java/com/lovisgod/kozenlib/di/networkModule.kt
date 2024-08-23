@@ -1,16 +1,16 @@
 package com.lovisgod.kozenlib.di
 
 
+//import com.lovisgod.kozenlib.core.network.CardLess.UserStore
 import com.lovisgod.kozenlib.core.data.utilsData.Constants
 import com.lovisgod.kozenlib.core.network.AuthInterfaceKozen
-//import com.lovisgod.kozenlib.core.network.CardLess.UserStore
 import com.lovisgod.kozenlib.core.network.kimonoInterfaceKozen
 import com.lovisgod.kozenlib.core.utilities.simplecalladapter.SimpleCallAdapterFactory
 import com.pixplicity.easyprefs.library.Prefs
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.koin.dsl.module.module
+import org.koin.dsl.module
 import org.simpleframework.xml.convert.AnnotationStrategy
 import org.simpleframework.xml.core.Persister
 import retrofit2.Retrofit

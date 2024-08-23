@@ -5,7 +5,7 @@ import com.lovisgod.kozenlib.core.data.dataSourceImpl.IswTransactionImpl
 import com.lovisgod.kozenlib.core.data.datasource.IswTransactionDataSource
 import com.lovisgod.kozenlib.core.utilities.CardCheckerHandler2
 import com.lovisgod.kozenlib.core.utilities.EmvHandler
-import org.koin.dsl.module.module
+import org.koin.dsl.module
 
 
 val transactionModule = module {

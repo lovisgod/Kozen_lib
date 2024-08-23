@@ -2,7 +2,7 @@ package com.lovisgod.kozenlib.di
 
 
 
-import org.koin.dsl.module.module
+import org.koin.dsl.module
 
 val applayerModule = module {
 
