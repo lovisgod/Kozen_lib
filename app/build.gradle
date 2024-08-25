@@ -95,7 +95,7 @@ dependencies {
     api "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
     // dependencies injections libraries
-    api "io.insert-koin:koin-core:$koin_version"
+    api "org.koin:koin-core:$koin_version"
 //    api "org.koin:koin-android-viewmodel:$koin_version"
 
     // kotlin coroutine libs
@@ -123,7 +123,7 @@ dependencies {
 
 
     // kotlin optional lib
-//    implementation "com.gojuno.koptional:koptional:1.6.0"
+    implementation "com.gojuno.koptional:koptional:1.6.0"
 
     // zing
     implementation "com.google.zxing:core:3.3.0"

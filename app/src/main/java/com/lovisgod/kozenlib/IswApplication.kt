@@ -1,14 +1,16 @@
 package com.lovisgod.kozenlib
 
 import android.app.Application
+import android.content.Context.MODE_PRIVATE
 import android.content.ContextWrapper
 import com.lovisgod.kozenlib.di.ExportModules
+import org.koin.dsl.module.Module
+import org.koin.dsl.module.module
+import org.koin.standalone.StandAloneContext
+
 import com.pixplicity.easyprefs.library.Prefs
-import org.koin.core.context.GlobalContext
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.startKoin
-import org.koin.core.module.Module
-import org.koin.dsl.module
+
+
 
 
 object IswApplication {
@@ -39,10 +41,7 @@ object IswApplication {
         var modules = arrayListOf<Module>()
         modules.add(appContext(app))
         modules.addAll(ExportModules.modules)
-
-        startKoin {
-            modules(modules)
-        }
+        StandAloneContext.loadKoinModules(modules)
     }
 }
 

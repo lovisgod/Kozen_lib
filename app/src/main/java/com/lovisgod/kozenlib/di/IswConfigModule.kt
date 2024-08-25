@@ -9,7 +9,7 @@ import com.lovisgod.kozenlib.core.data.dataSourceImpl.IswPrinterImpl
 import com.lovisgod.kozenlib.core.data.datasource.IswConfigDataSource
 import com.lovisgod.kozenlib.core.data.datasource.IswDetailsAndKeyDataSource
 import com.lovisgod.kozenlib.core.data.datasource.IswPrinterDataSource
-import org.koin.dsl.module
+import org.koin.dsl.module.module
 
 val configModule = module {
     single { IswDataConfig(get()) }
