@@ -9,18 +9,23 @@ import com.lovisgod.kozenlib.core.data.models.TerminalInfo
 import com.lovisgod.kozenlib.core.data.models.printer.PrintObject
 import com.lovisgod.kozenlib.core.data.utilsData.RequestIccData
 import com.lovisgod.kozenlib.core.utilities.DeviceUtilsKozen
-import org.koin.standalone.KoinComponent
-import org.koin.standalone.inject
+import com.lovisgod.kozenlib.di.DependencyContainer
 
-class ApplicationHandler: KoinComponent {
+class ApplicationHandler {
 
-    private object Container: KoinComponent
 
-    val iswConfigSourceInteractor: IswConfigSourceInteractor by inject()
-    val iswDetailsAndKeySourceInteractor: IswDetailsAndKeySourceInteractor by inject()
-    val iswTransactionInteractor: IswTransactionInteractor by inject()
-    val iswPrinterInteractor: IswPrinterInteractor by inject()
-//    val context: Context,
+    private val iswConfigSourceInteractor: IswConfigSourceInteractor by lazy {
+        DependencyContainer.getIswConfigSourceInteractor()
+    }
+    private val iswDetailsAndKeySourceInteractor: IswDetailsAndKeySourceInteractor by lazy {
+        DependencyContainer.getIswDetailsAndKeySourceInteractor()
+    }
+    private val iswTransactionInteractor: IswTransactionInteractor by lazy {
+        DependencyContainer.getIswTransactionInteractor()
+    }
+    private val iswPrinterInteractor: IswPrinterInteractor by lazy {
+        DependencyContainer.getIswPrinterInteractor()
+    }
 
 
     suspend fun print(context: Context, printerEvent: PrinterEvent, bitmap: Bitmap) {
