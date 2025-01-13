@@ -29,10 +29,6 @@ android {
 
     signingConfigs {
         release {
-            keyAlias 'ISWKozenOSSignature'
-            keyPassword 'ISWKozen2024'
-            storeFile file('kozen2024.jks')
-            storePassword 'ISWKozen2024'
         }
     }
 
@@ -41,12 +37,12 @@ android {
         debug {
             debuggable true
             minifyEnabled false
-           signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-           signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -69,9 +65,9 @@ android {
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs', excludes: ['koin-core-1.0.2.jar'])
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    compileOnly files('extern_libs/classes-2.1.15.jar')
+    compileOnly files('extern_libs/classes-2.1.14.jar')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
@@ -84,6 +80,8 @@ dependencies {
 //    implementation 'androidx.core:core-ktx:1.7.0'
 
     api "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.10"
+
+//    compileOnly(files("libs/koin-core-1.0.2.jar"))
 
     // retrofit
 
@@ -129,7 +127,7 @@ dependencies {
 
 
     // kotlin optional lib
-    implementation "com.gojuno.koptional:koptional:1.6.0"
+//    implementation "com.gojuno.koptional:koptional:1.6.0"
 
     // zing
     implementation "com.google.zxing:core:3.3.0"
