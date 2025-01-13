@@ -1,6 +1,5 @@
 package com.lovisgod.kozenlib.core.utilities.views;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -20,22 +19,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.Group;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.interswitchng.smartpos.shared.utilities.console;
 import com.lovisgod.kozenlib.R;
-import com.lovisgod.kozenlib.core.data.models.CardType;
 import com.lovisgod.kozenlib.core.data.models.EmvCardType;
 import com.lovisgod.kozenlib.core.data.utilsData.Constants;
-import com.lovisgod.kozenlib.core.data.utilsData.KeysUtils;
 import com.lovisgod.kozenlib.core.network.models.MemoryPinData;
 import com.lovisgod.kozenlib.core.network.models.StringManipulator;
 import com.lovisgod.kozenlib.core.utilities.DeviceUtilsKozen;
@@ -116,6 +110,7 @@ public class PasswordDialog {
             this.icSlot = 10;
         }
         this.keyIndex = keyIndex;
+        this.keyMode = pinMode;
 
         switch (bundle.getInt(EmvPinConstraints.PIN_TYPE, -1)) {
             case POIEmvCoreManager.PIN_PLAIN_PIN:
@@ -194,7 +189,7 @@ public class PasswordDialog {
         setAmountSpannableString();
         setCardTypeDrawable();
 
-        if (DeviceUtilsKozen.INSTANCE.getDeviceModel()) { // i.e the device model is p13
+        if (DeviceUtilsKozen.INSTANCE.hasPhysicalKeypad()) { // i.e the device model is p13
             System.out.println("device is p13 hide pin");
             btn0.setVisibility(View.GONE);
             btn1.setVisibility(View.GONE);

@@ -9,19 +9,26 @@ import com.lovisgod.kozenlib.core.data.dataInteractor.EMVEvents
 import com.lovisgod.kozenlib.core.data.models.EmvCard
 import com.lovisgod.kozenlib.core.data.models.EmvCardType
 import com.lovisgod.kozenlib.core.data.models.EmvPinData
-import com.lovisgod.kozenlib.core.data.utilsData.Constants
-import com.lovisgod.kozenlib.core.data.utilsData.REQUEST_TAGS
+import com.lovisgod.kozenlib.core.data.models.TransactionData
+import com.lovisgod.kozenlib.core.data.utilsData.*
 import com.lovisgod.kozenlib.core.data.utilsData.getIccData
+import com.lovisgod.kozenlib.core.utilities.EmvUtilsKozen.bcd2Str
+import com.lovisgod.kozenlib.core.utilities.views.PasswordDialog
 import com.pos.sdk.emvcore.IPosEmvCoreListener
 import com.pos.sdk.emvcore.POIEmvCoreManager
 import com.pos.sdk.emvcore.POIEmvCoreManager.EmvCardInfoConstraints
 import com.pos.sdk.emvcore.PosEmvErrorCode
+import com.pos.sdk.security.POIHsmManage
+import kotlinx.coroutines.delay
+import java.lang.Exception
 
 
-class CardCheckerHandler {
+
+
+class CardCheckerHandler2 {
 
     // communication channel with cardreader
-//    private val channel = Channel<com.interswitchng.smartpos.coreFunctionality.core.data.models.EmvMessage>()
+//    private val channel = Channel<EmvMessage>()
 
     var emvCoreManager: POIEmvCoreManager? = null
     var emvCoreListener: POIEmvCoreListener? = null
@@ -29,7 +36,7 @@ class CardCheckerHandler {
     var cardType: Int = 0
     var context: Context? = null
     var activity: Activity? = null
-    var emvEvents: EMVEvents? = null
+    var emvEvents: EMVEvents ? = null
     var emvCardType = EmvCardType.DEFAULT
 
 
@@ -73,6 +80,9 @@ class CardCheckerHandler {
             bundle.putInt(POIEmvCoreManager.EmvTransDataConstraints.TRANS_MODE, mode)
 
             bundle.putInt(POIEmvCoreManager.EmvTransDataConstraints.TRANS_TIMEOUT, 60)
+//            bundle.putBoolean(POIEmvCoreManager.EmvTransDataConstraints.SPECIAL_CONTACT, false)
+//            bundle.putBoolean(POIEmvCoreManager.EmvTransDataConstraints.SPECIAL_MAGSTRIPE, false)
+
 
             // Adds a delay after the card is detected before command interchange between the card and terminal begins
             // Serves to fix a bug where the card chip sometimes does not have sufficient time to power up before the Terminal starts to send commands
@@ -106,11 +116,11 @@ class CardCheckerHandler {
             when (type) {
                 POIEmvCoreManager.DEVICE_CONTACT -> {
                     console.log("card transaction type","Contact Card Trans")
-                    this@CardCheckerHandler.emvEvents?.onCardDetected(true)
+                    this@CardCheckerHandler2.emvEvents?.onCardDetected(true)
                 }
                 POIEmvCoreManager.DEVICE_CONTACTLESS -> {
                     console.log("card transaction type", "Contactless Card Trans")
-                    this@CardCheckerHandler.emvEvents?.onCardDetected(false)
+                    this@CardCheckerHandler2.emvEvents?.onCardDetected(false)
                 }
                 POIEmvCoreManager.DEVICE_MAGSTRIPE -> { console.log("card transaction type","Magstripe Card Trans") }
                 else -> {
@@ -128,20 +138,22 @@ class CardCheckerHandler {
 
         override fun onConfirmCardInfo(mode: Int, bundle: Bundle?) {
             var cardPanRead = bundle?.getByteArray(EmvCardInfoConstraints.TRACK2)
-            println("this is cardread2 $cardPanRead")
+            println("1stttt this is cardread2 ${cardPanRead}")
             val outBundle = Bundle()
             if (mode == POIEmvCoreManager.CMD_AMOUNT_CONFIG) {
-                outBundle.putString(EmvCardInfoConstraints.OUT_AMOUNT, "11")
-                outBundle.putString(EmvCardInfoConstraints.OUT_AMOUNT_OTHER, "22")
+                outBundle.putString(POIEmvCoreManager.EmvCardInfoConstraints.OUT_AMOUNT, "11")
+                outBundle.putString(POIEmvCoreManager.EmvCardInfoConstraints.OUT_AMOUNT_OTHER, "22")
             } else if (mode == POIEmvCoreManager.CMD_TRY_OTHER_APPLICATION) {
-                outBundle.putBoolean(EmvCardInfoConstraints.OUT_CONFIRM, true)
+                outBundle.putBoolean(POIEmvCoreManager.EmvCardInfoConstraints.OUT_CONFIRM, true)
             } else if (mode == POIEmvCoreManager.CMD_ISSUER_REFERRAL) {
-                outBundle.putBoolean(EmvCardInfoConstraints.OUT_CONFIRM, true)
+                outBundle.putBoolean(POIEmvCoreManager.EmvCardInfoConstraints.OUT_CONFIRM, true)
             }
             emvCoreManager?.onSetCardInfoResponse(outBundle)
         }
 
         override fun onKernelType(type: Int) {
+            println("this is kernel type")
+//            transData?.setCardType(type)
             emvCardType = EmvCardType.getCardTypeX(type)
 //            this@CardCheckerHandler.emvEvents?.onCardRead("", emvCardType)
         }
@@ -157,39 +169,34 @@ class CardCheckerHandler {
         }
 
         override fun onRequestOnlineProcess(bundle: Bundle) {
-            emvCoreManager?.stopTransaction()
+            println("got here for request online")
+            val outBundle = Bundle()
+            outBundle.putInt(
+                POIEmvCoreManager.EmvOnlineConstraints.OUT_AUTH_RESP_CODE,
+                0
+            )
+            emvCoreManager?.onSetOnlineResponse(outBundle)
         }
 
         override fun onTransactionResult(result: Int, bundle: Bundle) {
 
+            println("got here for result")
+
 
             when (result) {
-                PosEmvErrorCode.EMV_CANCEL -> {
-                    println("Transaction cancelled")
-                    this@CardCheckerHandler.emvEvents?.onTransactionCancelled()
+                PosEmvErrorCode.EMV_CANCEL, PosEmvErrorCode.EMV_TIMEOUT -> {
+//                    onTransEnd()
+                    println("transaction timed out")
+                    this@CardCheckerHandler2.emvEvents?.onRemoveCard(false, "")
                     return
                 }
 
-                PosEmvErrorCode.EMV_TIMEOUT -> {
-                    println("Transaction timed out")
-                    this@CardCheckerHandler.emvEvents?.onTransactionCancelled()
-                    return
-                }
-
-                PosEmvErrorCode.EMV_OTHER_INTERFACE -> {
-//                    this@CardCheckerHandler.emvEvents?.onRemoveCard(true, "Contactless Transaction Limit Exceeded")
-                    this@CardCheckerHandler.emvEvents?.onTransactionCancelled("Use Other ICC Interface - test")
-                }
-
-                PosEmvErrorCode.EMV_COMMAND_FAIL -> {
-                    this@CardCheckerHandler.emvEvents?.onTransactionCancelled("Transaction Cancelled - EMV Command Failed")
-                }
-
+                PosEmvErrorCode.EMV_COMMAND_FAIL,
                 PosEmvErrorCode.EMV_NOT_ALLOWED,
                 PosEmvErrorCode.EMV_APP_EMPTY,
                 PosEmvErrorCode.EMV_NOT_ACCEPTED -> {
-                    println("Transaction cancelled")
-                    this@CardCheckerHandler.emvEvents?.onTransactionCancelled("User interrupted the transaction")
+                    println("An emv error just occurred ::::: ${result}")
+                    this@CardCheckerHandler2.emvEvents?.onRemoveCard(false, "")
                     return
                 }
                 else -> {
@@ -198,7 +205,7 @@ class CardCheckerHandler {
             var data: ByteArray?
             var encryptData: ByteArray?
             var cardPanRead = bundle.getByteArray(EmvCardInfoConstraints.TRACK2)
-            println("this is cardread2 $cardPanRead")
+            println("2nddddd this is cardread2 ${cardPanRead}")
             Log.d(TAG, "onTransactionResult $result")
 
             data = bundle.getByteArray(POIEmvCoreManager.EmvResultConstraints.EMV_DATA)
@@ -259,8 +266,8 @@ class CardCheckerHandler {
                         }
 
                         iccDataX.EMC_CARD_?.cardNumber?.let {
-                            println("card pan::::: $it")
-                            this@CardCheckerHandler.emvEvents?.onCardRead(
+                            println("card pan::::: ${it}")
+                            this@CardCheckerHandler2.emvEvents?.onCardRead(
                                 it,
                                 CardTypeUtils.getCardType(it))
                         }

@@ -97,9 +97,12 @@ object DeviceUtilsKozen {
         ActivityCompat.requestPermissions(context, permissionsArray, requestCode)
     }
 
-    fun getDeviceModel(): Boolean {
+    fun hasPhysicalKeypad(): Boolean {
         val name = android.os.Build.MODEL
         println("device model is $name")
-        return name.contains("P13")
+
+        return (name.contains("P13")
+                || name.contains("P3")
+                || name.contains("B1796"))
     }
 }

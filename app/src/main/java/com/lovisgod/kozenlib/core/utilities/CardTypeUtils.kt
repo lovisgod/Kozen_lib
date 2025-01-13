@@ -24,7 +24,18 @@ object CardTypeUtils {
         if(PATTERN_CUP.toRegex().matches(cardPan)) return EmvCardType.INTERAC
         if(PATTERN_AFRIGO.toRegex().matches(cardPan)) return EmvCardType.AFRIGO
         if(PATTERN_UNION_PAY.toRegex().matches(cardPan)) return EmvCardType.UNIONPAY
+        if(PATTERN_DISCOVER.toRegex().matches(cardPan)) return EmvCardType.DISCOVER
 
-        return EmvCardType.DEFAULT
+        return getCardTypeExtended(cardPan)
+    }
+
+    private fun getCardTypeExtended(cardPan: String): EmvCardType {
+        val bin = cardPan.substring(0, 6)
+        val bin2 = cardPan.substring(0, 3)
+
+        val isVerveCard = (bin2.toInt() in 506..507)
+                || (bin.toInt() in 650002..650007)
+
+        return if (isVerveCard) EmvCardType.VERVE else EmvCardType.DEFAULT
     }
 }

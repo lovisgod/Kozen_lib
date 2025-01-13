@@ -1,27 +1,26 @@
-//package com.lovisgod.kozenlib.di
-//
-//
-//import com.lovisgod.kozenlib.core.data.utilsData.Constants
-//import com.lovisgod.kozenlib.core.network.AuthInterfaceKozen
-////import com.lovisgod.kozenlib.core.network.CardLess.UserStore
-//import com.lovisgod.kozenlib.core.network.kimonoInterfaceKozen
-//import com.lovisgod.kozenlib.core.utilities.simplecalladapter.SimpleCallAdapterFactory
-//import com.pixplicity.easyprefs.library.Prefs
-//import okhttp3.Interceptor
-//import okhttp3.OkHttpClient
-//import okhttp3.logging.HttpLoggingInterceptor
-//import org.koin.dsl.module.module
-//import org.simpleframework.xml.convert.AnnotationStrategy
-//import org.simpleframework.xml.core.Persister
-//import retrofit2.Retrofit
-//import retrofit2.converter.gson.GsonConverterFactory
-//import retrofit2.converter.simplexml.SimpleXmlConverterFactory
-//import java.util.concurrent.TimeUnit
-//
-//const val RETROFIT_KIMONO = "kimono_retrofit"
-//const val AUTH_INTERCEPTOR = "auth_interceptor"
-//const val RETROFIT_PAYMENT = "payment_retrofit"
-//
+package com.lovisgod.kozenlib.di
+
+
+import com.lovisgod.kozenlib.core.data.utilsData.Constants
+import com.lovisgod.kozenlib.core.network.AuthInterfaceKozen
+//import com.lovisgod.kozenlib.core.network.CardLess.UserStore
+import com.lovisgod.kozenlib.core.network.KimonoInterfaceKozen
+import com.lovisgod.kozenlib.core.utilities.simplecalladapter.SimpleCallAdapterFactory
+import com.pixplicity.easyprefs.library.Prefs
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import org.simpleframework.xml.convert.AnnotationStrategy
+import org.simpleframework.xml.core.Persister
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import java.util.concurrent.TimeUnit
+
+const val RETROFIT_KIMONO = "kimono_retrofit"
+const val AUTH_INTERCEPTOR = "auth_interceptor"
+const val RETROFIT_PAYMENT = "payment_retrofit"
+
 //
 //
 //val networkModule = module {
@@ -91,17 +90,6 @@
 //
 //    single {
 //
-//
-//        val inttrr = Interceptor { chain ->
-//            Prefs.getString(Constants.TOKEN)
-//            val request = chain.request().newBuilder()
-//                .addHeader("Content-type", "application/json")
-//                .addHeader("Authorization", "Bearer $it")
-//                .build()
-//
-//            return@Interceptor chain.proceed(request)
-//
-//        }
 //        // set base url based on env
 //        val iswBaseUrl = Constants.ISW_KIMONO_BASE_URL
 //
@@ -131,7 +119,7 @@
 //
 //
 //        val retrofit: Retrofit = builder.build()
-//        return@single retrofit.create(kimonoInterfaceKozen::class.java)
+//        return@single retrofit.create(KimonoInterfaceKozen::class.java)
 //    }
 //
 //

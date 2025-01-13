@@ -5,7 +5,7 @@ import com.lovisgod.kozenlib.core.network.models.*
 import com.lovisgod.kozenlib.core.utilities.simplecalladapter.Simple
 import retrofit2.http.*
 
-interface kimonoInterfaceKozen {
+interface KimonoInterfaceKozen {
 
     @POST(Constants.ISW_TOKEN_URL)
     fun getISWToken( @Body request: TokenRequestModelKozen):
