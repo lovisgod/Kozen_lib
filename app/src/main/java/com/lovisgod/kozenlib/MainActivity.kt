@@ -32,13 +32,13 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
 
                 delay(2000)
 
-//                applicationHandler.startTransaction(
-//                    true, true, 400000L, 0L, 0, 0,  this@MainActivity, this@MainActivity
-//                )
-
-                applicationHandler.checkCard(
-                    true, true, 400000L, 0L, 0,  this@MainActivity
+                applicationHandler.startTransaction(
+                    true, true, 1000L, 0L, 0, 0,  this@MainActivity, this@MainActivity
                 )
+
+//                applicationHandler.checkCard(
+//                    true, true, 400000L, 0L, 0,  this@MainActivity
+//                )
 
             }
         }
@@ -71,6 +71,7 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
 
     override fun onEmvProcessed(data: Any) {
         println("emv processed is called")
+        println(data)
     }
 
     override fun onUserCanceled(message: String) {

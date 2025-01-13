@@ -29,6 +29,10 @@ android {
 
     signingConfigs {
         release {
+            keyAlias 'ISWKozenOSSignature'
+            keyPassword 'ISWKozen2024'
+            storeFile file('kozen2024.jks')
+            storePassword 'ISWKozen2024'
         }
     }
 
@@ -67,7 +71,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    compileOnly files('extern_libs/classes-2.1.14+.jar')
+    compileOnly files('extern_libs/classes-2.1.15.jar')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
@@ -97,7 +101,7 @@ dependencies {
     api "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
     // dependencies injections libraries
-    api "org.koin:koin-core:$koin_version"
+//    api "org.koin:koin-core:$koin_version"
 //    api "org.koin:koin-android-viewmodel:$koin_version"
 
     // kotlin coroutine libs
