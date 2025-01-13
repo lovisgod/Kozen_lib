@@ -710,12 +710,20 @@ public class PasswordDialog {
             Log.d("PINBLOCK", "PINBLOCK " + HexUtil.toHexString(pinBlock));
 
            if (pinKsn != null) {
-               MemoryPinData memoryPinData = new MemoryPinData(
-                       HexUtil.toHexString(pinBlock), "dukpt",
-                       StringManipulator.INSTANCE.dropFirstCharacter( HexUtil.toHexString(pinKsn)),
-                       "605"
-               );
-               Constants.INSTANCE.setMemoryPinData(memoryPinData);
+               // generate manual pinblock and ksn  here
+//               MemoryPinData memoryPinData = new MemoryPinData(
+//                       HexUtil.toHexString(pinBlock), "dukpt",
+//                       StringManipulator.INSTANCE.dropFirstCharacter( HexUtil.toHexString(pinKsn)),
+//                       "605"
+//               );
+//               Constants.INSTANCE.setMemoryPinData(memoryPinData);
+
+
+               String IPEKK = Prefs.getString("IPEK", "");
+               String KSNX = Prefs.getString("KSN", "");
+               String newKSN = KSNX + Constants.INSTANCE.getNextKsnCounter();
+               String block = Converter.INSTANCE.GetPinBlock(IPEKK, newKSN, pinX, pinCard);
+               onPinSuccessISW(block, StringManipulator.INSTANCE.dropFirstCharacter(newKSN));
            } else {
                MemoryPinData memoryPinData = new MemoryPinData(
                        HexUtil.toHexString(pinBlock), "tpk",
@@ -723,18 +731,14 @@ public class PasswordDialog {
                        "605"
                );
                Constants.INSTANCE.setMemoryPinData(memoryPinData);
+
+               Bundle bundle = new Bundle();
+               bundle.putInt(EmvPinConstraints.OUT_PIN_VERIFY_RESULT, EmvPinConstraints.VERIFY_SUCCESS);
+               bundle.putInt(EmvPinConstraints.OUT_PIN_TRY_COUNTER, 0);
+               bundle.putByteArray(EmvPinConstraints.OUT_PIN_BLOCK, pinBlock);
+               POIEmvCoreManager.getDefault().onSetPinResponse(bundle);
            }
         }
-        Bundle bundle = new Bundle();
-        bundle.putInt(EmvPinConstraints.OUT_PIN_VERIFY_RESULT, EmvPinConstraints.VERIFY_SUCCESS);
-        bundle.putInt(EmvPinConstraints.OUT_PIN_TRY_COUNTER, 0);
-        if (pinBlock != null) {
-            bundle.putByteArray(EmvPinConstraints.OUT_PIN_BLOCK, pinBlock);
-        }
-        if (pinKsn != null) {
-            Log.e(null, "KSN " + HexUtil.toHexString(pinKsn));
-        }
-        POIEmvCoreManager.getDefault().onSetPinResponse(bundle);
     }
 
 

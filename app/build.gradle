@@ -27,10 +27,10 @@ android {
 
     signingConfigs {
         release {
-            keyAlias 'KozenOSSign'
-            keyPassword 'Kozen2022'
-            storeFile file('KozenOSSign.jks')
-            storePassword 'Kozen2022'
+            keyAlias 'ISWKozenOSSignature'
+            keyPassword 'ISWKozen2024'
+            storeFile file('kozen2024.jks')
+            storePassword 'ISWKozen2024'
         }
     }
 

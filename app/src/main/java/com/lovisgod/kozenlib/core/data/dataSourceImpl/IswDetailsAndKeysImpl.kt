@@ -24,8 +24,8 @@ class IswDetailsAndKeysImpl(val authInterfaceKozen: AuthInterfaceKozen,
     override suspend fun writeDukPtKey(keyIndex: Int, keyData: String, KsnData: String): Int {
         Log.d("KSN", "KSN $KsnData")
         val kcvInfo = PedKcvInfo(0, ByteArray(5))
-//        Prefs.putString("IPEK", keyData)
-//        Prefs.putString("KSN", KsnData.dropLast(1))
+        Prefs.putString("IPEK", keyData)
+        Prefs.putString("KSN", KsnData.dropLast(1))
         return POIHsmManage.getDefault().PedWriteTIK(
             keyIndex,
             0,

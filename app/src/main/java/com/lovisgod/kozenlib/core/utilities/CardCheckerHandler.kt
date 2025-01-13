@@ -166,7 +166,7 @@ class CardCheckerHandler {
             when (result) {
                 PosEmvErrorCode.EMV_CANCEL -> {
                     println("Transaction cancelled")
-                    this@CardCheckerHandler.emvEvents?.onTransactionCancelled()
+//                    this@CardCheckerHandler.emvEvents?.onTransactionCancelled()
                     return
                 }
 
@@ -177,11 +177,13 @@ class CardCheckerHandler {
                 }
 
                 PosEmvErrorCode.EMV_OTHER_INTERFACE -> {
+                    println("use another interface")
 //                    this@CardCheckerHandler.emvEvents?.onRemoveCard(true, "Contactless Transaction Limit Exceeded")
                     this@CardCheckerHandler.emvEvents?.onTransactionCancelled("Use Other ICC Interface - test")
                 }
 
                 PosEmvErrorCode.EMV_COMMAND_FAIL -> {
+                    println("Emv command failed")
                     this@CardCheckerHandler.emvEvents?.onTransactionCancelled("Transaction Cancelled - EMV Command Failed")
                 }
 
@@ -198,7 +200,7 @@ class CardCheckerHandler {
             var data: ByteArray?
             var encryptData: ByteArray?
             var cardPanRead = bundle.getByteArray(EmvCardInfoConstraints.TRACK2)
-            println("this is cardread2 $cardPanRead")
+            println("this is cardread check card result $cardPanRead")
             Log.d(TAG, "onTransactionResult $result")
 
             data = bundle.getByteArray(POIEmvCoreManager.EmvResultConstraints.EMV_DATA)

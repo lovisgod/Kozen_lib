@@ -32,8 +32,12 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
 
                 delay(2000)
 
-                applicationHandler.startTransaction(
-                    true, true, 400000L, 0L, 0, 0,  this@MainActivity, this@MainActivity
+//                applicationHandler.startTransaction(
+//                    true, true, 400000L, 0L, 0, 0,  this@MainActivity, this@MainActivity
+//                )
+
+                applicationHandler.checkCard(
+                    true, true, 400000L, 0L, 0,  this@MainActivity
                 )
 
             }
