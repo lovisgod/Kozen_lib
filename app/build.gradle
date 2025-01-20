@@ -29,6 +29,10 @@ android {
 
     signingConfigs {
         release {
+            keyAlias 'KozenOSSign'
+            keyPassword 'Kozen2022'
+            storeFile file('KozenOSSign.jks')
+            storePassword 'Kozen2022'
         }
     }
 
@@ -37,7 +41,7 @@ android {
         debug {
             debuggable true
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
         release {
             minifyEnabled false

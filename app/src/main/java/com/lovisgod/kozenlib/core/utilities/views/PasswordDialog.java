@@ -59,7 +59,7 @@ public class PasswordDialog {
     private int keyMode = POIHsmManage.PED_PINBLOCK_FETCH_MODE_TPK;
     private int icSlot;
 
-    private boolean isKeyboardFix = false;
+    private boolean isKeyboardFix = true;
     private boolean isEncrypt;
     private String  pinCard;
     private int     pinType;
@@ -588,6 +588,7 @@ public class PasswordDialog {
 
         @Override
         public void onKeyboardShow(POIHsmManage manage, byte[] keys, int timeout) {
+            System.out.println("on keyboard show");
             if (isKeyboardFix) {
                 byte[] fix = new byte[keys.length];
                 byte[] random = new byte[keys.length];

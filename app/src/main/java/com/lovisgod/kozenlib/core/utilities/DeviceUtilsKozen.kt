@@ -103,6 +103,7 @@ object DeviceUtilsKozen {
 
         return (name.contains("P13")
                 || name.contains("P3")
-                || name.contains("B1796"))
+                || name.contains("B1796")
+                || name.contains("B1791R"))
     }
 }

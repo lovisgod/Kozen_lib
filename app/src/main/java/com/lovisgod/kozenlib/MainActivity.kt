@@ -30,10 +30,20 @@ class MainActivity : AppCompatActivity(), EMVEvents, PrinterEvent {
                 applicationHandler.loadTerminal(terminalInfo)
                 applicationHandler.loadAllConfig()
 
+//                var rrr =  applicationHandler.loadMasterKey("C7B938A1B3C7FE7F7C2FE3FD6BC223BA")
+//                println("master key ret:: $rrr")
+//                var fff =applicationHandler.writePinKey(2, "7B81AB996B0212192B8E44BDF80B90CA")
+//                println("pin key ret:: $fff")
+
+                var resp = applicationHandler.writeDukptKey(1, "3F2216D8297BCE9C", "0000000002DDDDE00000")
+
+                println("dukpt response is ::: $resp")
+
+
                 delay(2000)
 
                 applicationHandler.startTransaction(
-                    true, true, 1000L, 0L, 0, 0,  this@MainActivity, this@MainActivity
+                    true, true, 1000L, 0L, 1, 0,  this@MainActivity, this@MainActivity
                 )
 
 //                applicationHandler.checkCard(

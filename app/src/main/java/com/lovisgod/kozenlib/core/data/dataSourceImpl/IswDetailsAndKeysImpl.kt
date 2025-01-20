@@ -26,7 +26,7 @@ class IswDetailsAndKeysImpl(val authInterfaceKozen: AuthInterfaceKozen,
 //        Prefs.putString("IPEK", keyData)
 //        Prefs.putString("KSN", KsnData.dropLast(1))
 
-        val hexData = padArray(HexUtil.parseHex(keyData), 16)
+        val hexData = (HexUtil.parseHex(keyData), 16)
 
         val writeDukptResult = POIHsmManage.getDefault().PedWriteTIK(
             keyIndex,
@@ -40,7 +40,7 @@ class IswDetailsAndKeysImpl(val authInterfaceKozen: AuthInterfaceKozen,
         return writeDukptResult
     }
 
-    private fun padArray(original: ByteArray, targetSize: Int, paddingByte: Byte = 0xFF.toByte()): ByteArray {
+    private fun padArray(orpadArrayiginal: ByteArray, targetSize: Int, paddingByte: Byte = 0xFF.toByte()): ByteArray {
         return ByteArray(targetSize) { i ->
             if (i < original.size) original[i] else paddingByte
         }
