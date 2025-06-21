@@ -26,7 +26,9 @@ class IswDetailsAndKeysImpl(val authInterfaceKozen: AuthInterfaceKozen,
 //        Prefs.putString("IPEK", keyData)
 //        Prefs.putString("KSN", KsnData.dropLast(1))
 
-        val hexData = padArray(HexUtil.parseHex(keyData), 16)
+//        val hexData = padArray(HexUtil.parseHex(keyData), 16)
+
+        val hexData = HexUtil.parseHex(keyData)
 
         val writeDukptResult = POIHsmManage.getDefault().PedWriteTIK(
             keyIndex,
