@@ -8,11 +8,12 @@ import com.lovisgod.kozenlib.core.data.models.TerminalInfo
 import com.lovisgod.kozenlib.core.data.utilsData.Constants.TERMINAL_INFO_KEY
 import com.lovisgod.kozenlib.core.data.utilsData.Constants.TOKEN
 import com.lovisgod.kozenlib.core.network.AuthInterfaceKozen
-import com.lovisgod.kozenlib.core.network.kimonoInterfaceKozen
+import com.lovisgod.kozenlib.core.network.KimonoInterfaceKozen
 import com.lovisgod.kozenlib.core.network.models.TokenRequestModelKozen
 import com.lovisgod.kozenlib.core.network.models.convertConfigResponseToAllTerminalInfo
 import com.lovisgod.kozenlib.core.utilities.HexUtil
 import com.lovisgod.kozenlib.core.utilities.ISWGeneralException
+import com.lovisgod.kozenlib.core.utilities.Logger
 import com.pixplicity.easyprefs.library.Prefs
 import com.pos.sdk.security.POIHsmManage
 import com.pos.sdk.security.PedKcvInfo
@@ -20,9 +21,9 @@ import com.pos.sdk.security.PedKeyInfo
 import kotlin.jvm.Throws
 
 class IswDetailsAndKeysImpl(val authInterfaceKozen: AuthInterfaceKozen,
-                            val kimonoInterfaceKozen: kimonoInterfaceKozen): IswDetailsAndKeyDataSource {
+                            val kimonoInterfaceKozen: KimonoInterfaceKozen): IswDetailsAndKeyDataSource {
     override suspend fun writeDukPtKey(keyIndex: Int, keyData: String, KsnData: String): Int {
-        Log.d("KSN", "KSN $KsnData")
+        Logger.log("KSN $KsnData")
         val kcvInfo = PedKcvInfo(0, ByteArray(5))
 //        Prefs.putString("IPEK", keyData)
 //        Prefs.putString("KSN", KsnData.dropLast(1))
@@ -34,6 +35,12 @@ class IswDetailsAndKeysImpl(val authInterfaceKozen: AuthInterfaceKozen,
             HexUtil.parseHex(KsnData),
             kcvInfo
         )
+    }
+
+    private fun padArray(original: ByteArray, targetSize: Int, paddingByte: Byte = 0xFF.toByte()): ByteArray {
+        return ByteArray(targetSize) { i ->
+            if (i < original.size) original[i] else paddingByte
+        }
     }
 
     override suspend fun writePinKey(keyIndex: Int, keyData: String): Int {
@@ -62,8 +69,8 @@ class IswDetailsAndKeysImpl(val authInterfaceKozen: AuthInterfaceKozen,
                        convertConfigResponseToAllTerminalInfo(it).let {
                            it.terminalInfo?.let { info ->
                                println("terminal info ::::: ${info.toString()}")
-                               info.qtbMerchantCode = "MX1065"
-                               info.qtbMerchantAlias = "002208"
+                               info.qtbMerchantCode = "M***65"
+                               info.qtbMerchantAlias = "0***08"
                                info.nibbsKey = it.tmsRouteTypeConfig?.key.toString()
                                saveTerminalInfo(info)
                            }
